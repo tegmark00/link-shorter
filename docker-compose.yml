@@ -1,0 +1,42 @@
+
+version: '3'
+
+services:
+
+  nginx:
+    build: ./nginx
+    container_name: link_shorter_nginx
+    restart: unless-stopped
+    ports:
+      - 8000:80
+#    network_mode: host
+#    networks:
+#      - link_shorter
+    volumes:
+      - ./static:/static
+    depends_on:
+      - web
+
+  web:
+    build: .
+    container_name: link_shorter_web
+    restart: unless-stopped
+    command: >
+      bash -c "
+        python manage.py migrate --noinput
+        yes | python manage.py collectstatic --noinput
+        gunicorn config.wsgi:application --bind 0.0.0.0:8000
+      "
+    volumes:
+      - ./static:/app/static
+      - ./db:/app/db
+#    networks:
+#      - link_shorter
+    logging:
+      driver: "json-file"
+      options:
+          max-size: "25m"
+
+#networks:
+#  link_shorter:
+#    external: true
