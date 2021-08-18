@@ -1,3 +1,4 @@
+from config import settings
 
 
 def get_ip_from_request(request):
@@ -5,4 +6,4 @@ def get_ip_from_request(request):
 
 
 def get_host_from_request(request):
-    return request.META.get('HTTP_HOST')
+    return request.META.get('HTTP_HOST') or settings.WEBSITE_URL
