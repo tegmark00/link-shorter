@@ -60,4 +60,6 @@ password - admin
 
 Provided example of docker-compose, Dockerfile and nginx.conf.
 So DevOps Engineer can configure load balancing via nginx,
-make several instances of the app, etc.
+make several instances of the app.
+
+Also you may configure gunicorn configuration
