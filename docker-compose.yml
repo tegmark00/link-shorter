@@ -9,9 +9,6 @@ services:
     restart: unless-stopped
     ports:
       - 8000:80
-#    network_mode: host
-#    networks:
-#      - link_shorter
     volumes:
       - ./static:/static
     depends_on:
@@ -27,16 +24,12 @@ services:
         yes | python manage.py collectstatic --noinput
         gunicorn config.wsgi:application --bind 0.0.0.0:8000
       "
+    env_file:
+      - .env
     volumes:
       - ./static:/app/static
       - ./db:/app/db
-#    networks:
-#      - link_shorter
     logging:
       driver: "json-file"
       options:
           max-size: "25m"
-
-#networks:
-#  link_shorter:
-#    external: true
