@@ -8,6 +8,7 @@ from rest_framework.response import Response
 
 from .serializers import CreateShortUrlSerializer
 from .models import ShortUrl
+from .utils import get_host_from_request
 
 
 class CreateShortUrlView(CreateAPIView):
@@ -18,8 +19,9 @@ class CreateShortUrlView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
+        url = get_host_from_request(request) + '/' + serializer.instance.path
         return Response({
-            'shortened_url': settings.WEBSITE_URL + '/' + serializer.instance.path
+            'shortened_url': url
         }, status=status.HTTP_201_CREATED, headers=headers)
 
 
