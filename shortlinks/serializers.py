@@ -6,13 +6,12 @@ from .utils import get_ip_from_request
 
 
 class CreateShortUrlSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = ShortUrl
-        fields = ('url',)
+        fields = ("url",)
 
     def create(self, validated_data):
         return ShortLinkCreateService(
-            ip=get_ip_from_request(self.context['request']),
-            url=validated_data['url']
+            ip=get_ip_from_request(self.context["request"]),
+            url=validated_data["url"],
         ).execute()

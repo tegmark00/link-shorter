@@ -1,4 +1,5 @@
 from secrets import token_urlsafe
+
 from django.db import IntegrityError
 from django.db.transaction import atomic
 
@@ -6,7 +7,6 @@ from .models import ShortUrl
 
 
 class ShortLinkCreateService:
-
     def __init__(self, ip: str, url: str):
         self.ip = ip
         self.url = url

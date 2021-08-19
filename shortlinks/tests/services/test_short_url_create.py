@@ -1,15 +1,15 @@
 from unittest.mock import patch
+
 from django.test import TestCase
 
-from shortlinks.services import ShortLinkCreateService
 from shortlinks.models import ShortUrl
+from shortlinks.services import ShortLinkCreateService
 
 
 class TestShortLinkCreateService(TestCase):
-
     def setUp(self) -> None:
-        self.ip = '127.0.0.1'
-        self.url = 'https://google.com'
+        self.ip = "127.0.0.1"
+        self.url = "https://google.com"
         self.service = ShortLinkCreateService(ip=self.ip, url=self.url)
 
     def test_random_generating(self):
@@ -29,13 +29,11 @@ class TestShortLinkCreateService(TestCase):
         self.assertEqual(self.ip, instance.ip)
         self.assertEqual(self.url, instance.url)
 
-    @patch('shortlinks.services.ShortLinkCreateService.generate_random_path')
+    @patch("shortlinks.services.ShortLinkCreateService.generate_random_path")
     def test_integrity_error(self, generate_random_path_mock):
-        generate_random_path_mock.side_effect = ['foo', 'foo', 'bar', 'baz']
+        generate_random_path_mock.side_effect = ["foo", "foo", "bar", "baz"]
         self.service.execute()
         self.service.execute()
         self.service.execute()
         self.assertEqual(generate_random_path_mock.call_count, 4)
         self.assertTrue(ShortUrl.objects.count() == 3)
-
-
