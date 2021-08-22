@@ -1,5 +1,3 @@
-from django.db.models import Count
-from django.http import HttpResponse
 from django.views.generic import RedirectView
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
@@ -8,7 +6,11 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from .models import ShortUrl
+from .responses import HttpTextResponse
 from .serializers import CreateShortUrlSerializer
+from .services import get_top10_popular_urls
+from .services import get_total_shortened_urls
+from .services import get_total_unique_visitors_shortened_urls
 from .utils import get_host_from_request
 
 
@@ -19,13 +21,8 @@ class CreateShortUrlView(CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
         url = get_host_from_request(request) + "/" + serializer.instance.path
-        return Response(
-            {"shortened_url": url},
-            status=status.HTTP_201_CREATED,
-            headers=headers,
-        )
+        return Response({"shortened_url": url}, status=status.HTTP_201_CREATED)
 
 
 class RedirectUrlView(RedirectView):
@@ -34,42 +31,31 @@ class RedirectUrlView(RedirectView):
         return short_url.url
 
 
-class TestView(GenericAPIView):
-    def get(self, request, *args, **kwargs):
-        return HttpResponse(
-            "It works", status=status.HTTP_200_OK, content_type="text"
-        )
-
-
 class StatisticsCountUrlsView(GenericAPIView):
-    def _get_count(self):
-        return ShortUrl.objects.count()
-
     def get(self, request, *args, **kwargs):
-        return HttpResponse(
-            f"Number of shortened urls: {self._get_count()}",
-            status=status.HTTP_200_OK,
-            content_type="text",
+        _count = get_total_shortened_urls()
+        return HttpTextResponse(
+            f"Number of shortened urls: {_count}",
         )
 
 
-class StatisticsCountUniqueVisitorsUrlsView(StatisticsCountUrlsView):
-    def _get_count(self):
-        return ShortUrl.objects.values("ip").distinct().count()
+class StatisticsCountUniqueCreatorsUrlsView(StatisticsCountUrlsView):
+    def get(self, request, *args, **kwargs):
+        _count = get_total_unique_visitors_shortened_urls()
+        return HttpTextResponse(
+            f"Number of shortened urls: {_count}",
+        )
 
 
 class MostPopularView(GenericAPIView):
     def get(self, request, *args, **kwargs):
-        top_urls = (
-            ShortUrl.objects.values_list("url", flat=True)
-            .annotate(url_count=Count("url"))
-            .order_by("-url_count")[:10]
-        )
-
+        top_urls = get_top10_popular_urls()
         top_urls = ", ".join(list(top_urls))
-
-        return HttpResponse(
+        return HttpTextResponse(
             f"Most popular urls: {top_urls}",
-            status=status.HTTP_200_OK,
-            content_type="text",
         )
+
+
+class TestView(GenericAPIView):
+    def get(self, request, *args, **kwargs):
+        return HttpTextResponse("It works")

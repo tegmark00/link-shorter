@@ -1,6 +1,7 @@
 from secrets import token_urlsafe
 
 from django.db import IntegrityError
+from django.db.models import Count
 from django.db.transaction import atomic
 
 from .models import ShortUrl
@@ -30,3 +31,19 @@ class ShortLinkCreateService:
         except IntegrityError:
             self._save(instance)
         return instance
+
+
+def get_total_shortened_urls() -> int:
+    return ShortUrl.objects.count()
+
+
+def get_total_unique_visitors_shortened_urls() -> int:
+    return ShortUrl.objects.values("ip").distinct().count()
+
+
+def get_top10_popular_urls() -> tuple:
+    return (
+        ShortUrl.objects.values_list("url", flat=True)
+        .annotate(url_count=Count("url"))
+        .order_by("-url_count")[:10]
+    )
