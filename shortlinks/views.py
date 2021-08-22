@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from .models import ShortUrl
 from .responses import HttpTextResponse
 from .serializers import CreateShortUrlSerializer
-from .services import get_count_unique_creators_shortened_urls
+from .services import get_number_unique_creators_shortened_urls
 from .services import get_top10_popular_urls
 from .services import get_total_shortened_urls
 from .utils import get_host_from_request
@@ -41,7 +41,7 @@ class StatisticsCountUrlsView(GenericAPIView):
 
 class StatisticsCountUniqueCreatorsUrlsView(StatisticsCountUrlsView):
     def get(self, request, *args, **kwargs):
-        _count = get_count_unique_creators_shortened_urls()
+        _count = get_number_unique_creators_shortened_urls()
         return HttpTextResponse(
             f"Number of shortened urls: {_count}",
         )

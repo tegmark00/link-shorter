@@ -37,7 +37,7 @@ def get_total_shortened_urls() -> int:
     return ShortUrl.objects.count()
 
 
-def get_count_unique_creators_shortened_urls() -> int:
+def get_number_unique_creators_shortened_urls() -> int:
     return ShortUrl.objects.values("ip").distinct().count()
 
 
